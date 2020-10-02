@@ -37,4 +37,29 @@ When your serverless function is triggered a new server is not always spun up.  
 
 ## Logging
 
+Always log trigger integrity check failue, input validation failures.  Make sure to have a maximumm log size, encode to stop XSS, and replace carriage returns to stop log forgeries.  Logging should always send the logs to centralized logging service for monitoring.  Monitoring should look for attempts to read the environtmental variable, temp directory or source code.
+
+## Pseudocode Template
+
+```pseudocode
+lambda function(request, context):
+    if (validateTriggerIntegrity(request) == false):
+        log("Integrity Error:" + request)
+        exit
+    if (validateInput(request) == false):
+        log("Input Error:" + request)
+        exit
+    Process(request)
+    cleanTemporaryDirectory()
+
+ log(unsafeStringToLog):
+     safeStringToLog = null
+     if (stringToLog is not null):
+          safeStringToLog = Encode.forHtml(stringToLog.substring(0, Math.min(stringToLog, MAXLOGSIZE)).replace("\n","__n__").replace("\r","__r__))
+     CentralizedLogger.log(safeStringToLog)
+```
+
+## Other Factors
+
+## Good practices to keep in mind
 
